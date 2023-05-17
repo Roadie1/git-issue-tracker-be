@@ -1,0 +1,42 @@
+{
+  "name": "git-issue-tracker-be",
+  "version": "1.0.0",
+  "description": "backend service for looking up github issues",
+  "main": "index.ts",
+  "scripts": {
+    "test": "test",
+    "build": "webpack",
+    "start": "node build/index.js",
+    "start:dev": "NODE_ENV=development webpack & node build/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Roadie1/git-issue-tracker-be.git"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "mongodb",
+    "mongoose"
+  ],
+  "author": "Roadie1",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Roadie1/git-issue-tracker-be/issues"
+  },
+  "homepage": "https://github.com/Roadie1/git-issue-tracker-be#readme",
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.1.7",
+    "ts-loader": "^9.4.2",
+    "typescript": "^5.0.4",
+    "webpack": "^5.82.1",
+    "webpack-cli": "^5.1.1",
+    "webpack-node-externals": "^3.0.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongodb": "^5.5.0",
+    "mongoose": "^7.1.1"
+  }
+}
