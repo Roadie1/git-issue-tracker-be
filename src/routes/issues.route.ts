@@ -1,8 +1,10 @@
 import { Router } from 'express';
-import * as IssuesController from '../controllers/issues.controller';
+import { IssuesController } from '../controllers';
+import { LoggerMiddleware } from '../middlewares';
 
 const router = Router();
 
-router.get('/:user/:repository', IssuesController.getIssues);
+router.use('/', (req, res, next) => LoggerMiddleware.logRequest(req, res, next, "getIssues"));
+router.get('/', IssuesController.getIssues);
 
 export default router;

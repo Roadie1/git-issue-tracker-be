@@ -1,21 +1,13 @@
-import { Request, Response } from 'express';
-import * as IssuesService from '../services/issues.service';
-import { createLog } from '../middleware/logging.middleware';
+import { NextFunction, Request, Response } from 'express';
+import  { IssuesService } from '../services/';
 
-async function getIssues(req: Request, res: Response): Promise<void> {
-    const { user, repository } = req.params;
+export async function getIssues(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        await createLog('getIssues', [user, repository]);
-        const issues = IssuesService.getIssuesByParams(user, repository);
-        res.send({
-            message: JSON.stringify(issues)
-        });
+        const { user, repository, page, size } = req.query as { user: string, repository: string, page: string, size: string };
+        const issues = await IssuesService.getIssuesByParams(user, repository, page, size);
+        res.status(200).send(issues);
     }
     catch (err) {
-        console.log(err);
+        next(err);
     }
-}
-
-export {
-    getIssues
 }

@@ -1,10 +1,11 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
+const Dotenv = require('dotenv-webpack');
 
 const { NODE_ENV = 'production' } = process.env;
 
 module.exports = {
-  entry: './index.ts',
+  entry: './src/index.ts',
   mode: NODE_ENV,
   target: 'node',
   output: {
@@ -24,5 +25,8 @@ module.exports = {
         }
     ]
   },
-  externals: [ nodeExternals() ]
+  externals: [ nodeExternals() ],
+  plugins: [
+    new Dotenv()
+  ]
 }

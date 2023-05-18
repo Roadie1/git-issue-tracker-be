@@ -1,11 +1,12 @@
 import * as express from 'express';
-import issues from './src/routes/issues.route';
+import { IssuesRoutes, StatisticsRoutes } from './routes';
 import mongoose from 'mongoose';
 
 const app = express();
-const { PORT = 3001, MONGO_URL = "mongodb://localhost:27017/local" } = process.env;
+const { PORT, MONGO_URL } = process.env;
 
-app.use('/issues', issues);
+app.use('/issues', IssuesRoutes);
+app.use('/statistics', StatisticsRoutes);
 
 async function main() {
     try {
