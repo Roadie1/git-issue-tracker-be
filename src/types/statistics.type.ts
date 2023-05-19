@@ -1,6 +1,6 @@
-import { ILog, PaginationInfo } from "./";
+import { ILog, Metadata } from ".";
 
 export interface StatisticsPayload {
     statistics: ILog[];
-    pagination: PaginationInfo;
+    pagination: Metadata;
 }

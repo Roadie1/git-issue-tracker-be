@@ -1,5 +1,5 @@
-import { Issue, IssuePayload, IssueResponse } from "../types";
 import fetch from 'node-fetch';
+import { IssueDTO, IssuePayload, GithubIssueDTO, toIssueDTO } from "../dto";
 
 const { GIT_URL } = process.env;
 
@@ -28,34 +28,12 @@ export async function getIssuesByParams(user: string, repository: string, page: 
     const sizeNumber = Number(size);
     const result = await fetch(getIssuesUrl(user, repository, pageNumber, sizeNumber), options);
     const totalPages = getTotalPages(result.headers.get('link'), pageNumber);
-    const allIssues = await result.json() as IssueResponse[];
-    const issueSelection: Issue[] = allIssues.filter((issue => !issue.pull_request)).map((issue) => {
-        const labels = issue.labels.map((label) => ({
-            name: label.name,
-            color: label.color,
-            description: label.description
-        }));
-
-        return {
-            htmlUrl: issue.html_url,
-            id: issue.id,
-            number: issue.number,
-            title: issue.title,
-            user: {
-                login: issue.user.login,
-                avatarUrl: issue.user.avatar_url,
-                htmlUrl: issue.user.html_url
-            },
-            labels,
-            locked: issue.locked,
-            createdAt: issue.created_at,
-            body: issue.body
-        }
-    });
+    const allIssues = await result.json() as GithubIssueDTO[];
+    const issueSelection = allIssues.filter((issue => !issue.pull_request)).map(toIssueDTO);
 
     return {
         issues: issueSelection,
-        pagination: {
+        metadata: {
             total: totalPages * sizeNumber,
             page: pageNumber,
             totalPages

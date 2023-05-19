@@ -5,7 +5,7 @@ export async function getAllStatistics(req: Request, res: Response, next: NextFu
     try {
         const { size, page } = req.query as { size: string, page: string };
         const statistics = await StatisticsService.getAllStatistics(size, page);
-        res.status(200).send(statistics);
+        res.status(200).json(statistics);
     }
     catch (err) {
         next(err);
