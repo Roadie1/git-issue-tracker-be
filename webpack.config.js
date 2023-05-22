@@ -17,16 +17,17 @@ module.exports = {
   },
   module: {
     rules: [
-        {
-            test: /\.ts$/,
-            use: [
-                'ts-loader'
-            ]
-        }
+      {
+        test: /\.ts$/,
+        use: [
+          'ts-loader'
+        ]
+      }
     ]
   },
-  externals: [ nodeExternals() ],
+  devtool: "source-map",
+  externals: [nodeExternals()],
   plugins: [
-    new Dotenv()
+    new Dotenv(),
   ]
 }

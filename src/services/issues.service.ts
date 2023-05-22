@@ -1,5 +1,7 @@
 import fetch from 'node-fetch';
-import { IssueDTO, IssuePayload, GithubIssueDTO, toIssueDTO } from "../dto";
+import { IssuePayload, GithubIssueDTO, toIssueDTO, IssueDTO } from "../dto";
+import { IssueQuery } from '../types';
+import { issuesCache } from '../middlewares';
 
 const { GIT_URL } = process.env;
 
@@ -7,15 +9,13 @@ function getIssuesUrl(user: string, repository: string, page: number, size: numb
     return GIT_URL + `/repos/${user}/${repository}/issues?page=${page}&per_page=${size}`;
 }
 
-function getTotalPages(header: string, page: number): number {
-    const lastLink = header.split(', ').find((link) => link.includes('rel="last"'));
-    if(!lastLink) return page;
-    const indexStart = lastLink.indexOf('page=');
-    const indexEnd = lastLink.indexOf('&per_page=');
-    return Number(lastLink.slice(indexStart + 5, indexEnd));
+function getNextPage(header: string,): string {
+    const nextLink = header.split(', ').find((link) => link.includes('rel="next"'));
+    if(!nextLink) return '';
+    return nextLink.slice(1, nextLink.indexOf('>'));
 }
 
-export async function getIssuesByParams(user: string, repository: string, page: string, size: string): Promise<IssuePayload> {
+async function fetchIssues(url:string): Promise<GithubIssueDTO[]> {
     const options = {
         method: 'GET',
         headers: {
@@ -23,20 +23,38 @@ export async function getIssuesByParams(user: string, repository: string, page: 
             'X-GitHub-Api-Version': '2022-11-28'
         }
     }
+    const result = await fetch(url, options);
+    let issues = await result.json() as GithubIssueDTO[];
+    const nextLink = getNextPage(result.headers.get('link'));
+    if(nextLink) {
+        const nextIssues = await fetchIssues(nextLink);
+        issues = [...issues, ...nextIssues];
+    }
+    return issues;
+}
 
-    const pageNumber = Number(page);
-    const sizeNumber = Number(size);
-    const result = await fetch(getIssuesUrl(user, repository, pageNumber, sizeNumber), options);
-    const totalPages = getTotalPages(result.headers.get('link'), pageNumber);
-    const allIssues = await result.json() as GithubIssueDTO[];
-    const issueSelection = allIssues.filter((issue => !issue.pull_request)).map(toIssueDTO);
+async function getAllIssues(user: string, repository: string): Promise<IssueDTO[]> {
+    const issues = await fetchIssues(getIssuesUrl(user, repository, 1, 100));
+    return issues.filter((issue => !issue.pull_request)).map(toIssueDTO);
+}
 
+export async function getIssuesByParams(query: IssueQuery): Promise<IssuePayload> {
+    const { user, repository, size, page, forced } = query;
+    const pageNumber = isNaN(Number(page)) || !page ? 1 : Number(page);
+    const sizeNumber = isNaN(Number(size)) || !size ? 10 : Number(size);
+    const cacheKey = `issues-${user}-${repository}`;
+
+    let allIssues = issuesCache.retrieveItemValue(cacheKey);
+
+    if (forced || !allIssues) {
+        allIssues = await getAllIssues(user, repository);
+        issuesCache.storeExpiringItem(cacheKey, allIssues, 600);
+    }
     return {
-        issues: issueSelection,
+        issues: allIssues.slice((pageNumber - 1) * sizeNumber, pageNumber * sizeNumber),
         metadata: {
-            total: totalPages * sizeNumber,
-            page: pageNumber,
-            totalPages
+            totalCount: allIssues.length,
+            totalPages: Math.ceil(allIssues.length / sizeNumber)
         }
-    };
+    }
 }

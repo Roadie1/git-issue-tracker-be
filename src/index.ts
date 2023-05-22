@@ -1,10 +1,13 @@
 import * as express from 'express';
-import { IssuesRoutes, StatisticsRoutes } from './routes';
 import mongoose from 'mongoose';
+import { IssuesRoutes, StatisticsRoutes } from './routes';
+import * as cors from 'cors';
 
 const app = express();
-const { PORT, MONGO_URL } = process.env;
+const { PORT, MONGO_URL, FE_URL } = process.env;
+const corsOptions = { origin: FE_URL };
 
+app.use(cors(corsOptions));
 app.use('/issues', IssuesRoutes);
 app.use('/statistics', StatisticsRoutes);
 
