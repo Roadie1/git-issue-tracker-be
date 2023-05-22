@@ -3,5 +3,5 @@ export interface IssueQuery {
     repository: string;
     page: string;
     size: string;
-    forced: boolean;
+    forced: string;
 }

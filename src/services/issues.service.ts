@@ -9,8 +9,8 @@ function getIssuesUrl(user: string, repository: string, page: number, size: numb
     return GIT_URL + `/repos/${user}/${repository}/issues?page=${page}&per_page=${size}`;
 }
 
-function getNextPage(header: string,): string {
-    const nextLink = header.split(', ').find((link) => link.includes('rel="next"'));
+function getNextPage(header: string): string {
+    const nextLink = header?.split(', ').find((link) => link.includes('rel="next"'));
     if(!nextLink) return '';
     return nextLink.slice(1, nextLink.indexOf('>'));
 }
@@ -35,6 +35,9 @@ async function fetchIssues(url:string): Promise<GithubIssueDTO[]> {
 
 async function getAllIssues(user: string, repository: string): Promise<IssueDTO[]> {
     const issues = await fetchIssues(getIssuesUrl(user, repository, 1, 100));
+    if(!issues) {
+        return [];
+    }
     return issues.filter((issue => !issue.pull_request)).map(toIssueDTO);
 }
 
@@ -46,7 +49,7 @@ export async function getIssuesByParams(query: IssueQuery): Promise<IssuePayload
 
     let allIssues = issuesCache.retrieveItemValue(cacheKey);
 
-    if (forced || !allIssues) {
+    if (forced === 'true' || !allIssues) {
         allIssues = await getAllIssues(user, repository);
         issuesCache.storeExpiringItem(cacheKey, allIssues, 600);
     }
@@ -54,7 +57,10 @@ export async function getIssuesByParams(query: IssueQuery): Promise<IssuePayload
         issues: allIssues.slice((pageNumber - 1) * sizeNumber, pageNumber * sizeNumber),
         metadata: {
             totalCount: allIssues.length,
-            totalPages: Math.ceil(allIssues.length / sizeNumber)
+            page: pageNumber,
+            size: sizeNumber,
+            user,
+            repository
         }
     }
 }

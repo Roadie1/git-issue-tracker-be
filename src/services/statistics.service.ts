@@ -13,7 +13,8 @@ export async function getAllStatistics(size: string, page: string): Promise<Stat
         statistics,
         pagination: {
             totalCount: count,
-            totalPages: Math.ceil(count / limit)
+            page: pageNumber,
+            size: sizeNumber
         }
     };
 }
