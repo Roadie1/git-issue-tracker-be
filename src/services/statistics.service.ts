@@ -11,7 +11,7 @@ export async function getAllStatistics(size: string, page: string): Promise<Stat
 
     return {
         statistics,
-        pagination: {
+        metadata: {
             totalCount: count,
             page: pageNumber,
             size: sizeNumber
