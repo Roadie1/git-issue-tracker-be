@@ -1,12 +1,12 @@
 import { Metadata } from "../types";
 
-interface IssueUserInfo {
+export interface IssueUserInfo {
     login: string;
     avatarUrl: string;
     htmlUrl: string;
 }
 
-interface IssueLabelInfo {
+export interface IssueLabelInfo {
     name: string;
     color: string;
     description: string;
@@ -15,7 +15,7 @@ interface IssueLabelInfo {
 interface IssuePullRequestInfo {
     url: string;
     html_url: string;
-    merged_aT: string;
+    merged_at: string;
 }
 
 interface GithubIssueUserInfo {
@@ -25,16 +25,13 @@ interface GithubIssueUserInfo {
     html_url: string;
 }
 
-export interface IssueDTO {
-    htmlUrl: string;
+export interface Issue {
     id: string;
     number: number;
     title: string;
     user: IssueUserInfo;
     labels: IssueLabelInfo[];
-    locked: boolean;
     createdAt: string;
-    body: string;
 }
 
 export interface GithubIssueDTO {
@@ -51,14 +48,16 @@ export interface GithubIssueDTO {
     closed_at: string;
     pull_request?: IssuePullRequestInfo;
     body: string;
+    assignees: GithubIssueUserInfo[];
+
 }
 
-export interface IssuePayload {
-    issues: IssueDTO[];
+export interface IssueDTO {
+    issues: Issue[];
     metadata: Metadata;
 }
 
-export function toIssueDTO(issue: GithubIssueDTO): IssueDTO {
+export function DTOtoIssue(issue: GithubIssueDTO): Issue {
         const labels = issue.labels.map((label) => ({
             name: label.name,
             color: label.color,
@@ -66,7 +65,6 @@ export function toIssueDTO(issue: GithubIssueDTO): IssueDTO {
         }));
 
         return {
-            htmlUrl: issue.html_url,
             id: issue.id,
             number: issue.number,
             title: issue.title,
@@ -76,8 +74,6 @@ export function toIssueDTO(issue: GithubIssueDTO): IssueDTO {
                 htmlUrl: issue.user.html_url
             },
             labels,
-            locked: issue.locked,
             createdAt: issue.created_at,
-            body: issue.body
         }
 }

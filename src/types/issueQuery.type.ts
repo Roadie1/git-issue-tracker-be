@@ -5,3 +5,9 @@ export interface IssueQuery {
     size: string;
     forced: string;
 }
+
+export interface IssueDetailsQuery {
+    user: string;
+    repository: string;
+    number: string;
+}

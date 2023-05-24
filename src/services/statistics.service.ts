@@ -1,7 +1,7 @@
 import { Log } from "../models";
-import { StatisticsPayload } from "../types";
+import { StatisticsDTO } from "../dto";
 
-export async function getAllStatistics(size: string, page: string): Promise<StatisticsPayload> {
+export async function getAllStatistics(size: string, page: string): Promise<StatisticsDTO> {
     const sizeNumber = Number(size);
     const pageNumber = Number(page);
     const limit = isNaN(sizeNumber) || !sizeNumber ? 10 : sizeNumber;
