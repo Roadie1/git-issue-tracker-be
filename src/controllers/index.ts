@@ -1,7 +1,9 @@
-import * as IssuesController from './issues.controller';
-import * as StatisticsController from './statistics.controller';
+import issuesController from './issues.controller';
+import statisticsController from './statistics.controller';
+import BaseController from './base.controller';
 
 export {
-    IssuesController,
-    StatisticsController
+    issuesController,
+    statisticsController,
+    BaseController
 }

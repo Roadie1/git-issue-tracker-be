@@ -1,10 +1,8 @@
 import { Router } from 'express';
-import { StatisticsController } from '../controllers';
-// import { LoggerMiddleware } from '../middlewares';
+import { statisticsController } from '../controllers';
 
 const router = Router();
 
-// router.use((req, res, next) => LoggerMiddleware.logRequest(req, res, next, "getAllStatistics"));
-router.get('/', StatisticsController.getAllStatistics);
+router.get('/', (req, res) => statisticsController.getAllStatistics(req, res));
 
 export default router;

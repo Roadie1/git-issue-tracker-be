@@ -12,8 +12,6 @@
             "smartStep": true,
             "program": "${workspaceFolder}/src/index.ts",
             "outFiles": ["${workspaceFolder}/build/*.js"],
-            "runtimeExecutable": "npm",
-            "preLaunchTask": "npm run build",
             "skipFiles": [
                 "<node_internals>/**"
             ],

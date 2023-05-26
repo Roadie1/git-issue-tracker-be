@@ -1,24 +1,31 @@
-import { NextFunction, Request, Response } from 'express';
-import { IssuesService } from '../services/';
+import { Request, Response } from 'express';
+import { issuesService } from '../services/';
 import { IssueDetailsQuery, IssueQuery } from '../types';
+import BaseController from './base.controller';
 
-export async function getIssues(req: Request<{}, {}, {}, IssueQuery>, res: Response, next: NextFunction): Promise<void> {
-    try {
-        const issues = await IssuesService.getIssuesByParams(req.query);
-        res.status(200).json(issues);
+class IssuesController extends BaseController {
+    constructor() {
+        super();
     }
-    catch (err) {
-        next(err);
+
+    public async getIssues(req: Request<{}, {}, {}, Record<string, any>>, res: Response): Promise<void> {
+        try {
+            const issues = await issuesService.getIssuesByParams(req.query as IssueQuery);
+            this.success(res, issues);
+        }
+        catch (err) {
+            this.fail(res, err.toString());
+        }
+    }
+    public async getIssueDetails(req: Request<{}, {}, {}, Record<string, any>>, res: Response): Promise<void> {
+        try {
+            const issue = await issuesService.getIssueDetails(req.query as IssueDetailsQuery);
+            this.success(res, issue);
+        }
+        catch (err) {
+            this.fail(res, err.toString());
+        }
     }
 }
 
-export async function getIssueDetails(req: Request<{}, {}, {}, IssueDetailsQuery>, res: Response, next: NextFunction): Promise<void> {
-    try {
-        const issue = await IssuesService.getIssueDetails(req.query);
-        res.status(200).json(issue);
-    }
-    catch (err) {
-        next(err);
-    }
-}
-
+export default new IssuesController();

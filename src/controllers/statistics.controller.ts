@@ -1,13 +1,22 @@
-import { NextFunction, Request, Response } from 'express';
-import { StatisticsService } from "../services";
+import { Request, Response } from 'express';
+import { statisticsService } from "../services";
+import BaseController from './base.controller';
 
-export async function getAllStatistics(req: Request, res: Response, next: NextFunction) {
-    try {
-        const { size, page } = req.query as { size: string, page: string };
-        const statistics = await StatisticsService.getAllStatistics(size, page);
-        res.status(200).json(statistics);
-    }
-    catch (err) {
-        next(err);
+class StatisticsController extends BaseController {
+    constructor() {
+        super();
+     }
+
+    public async getAllStatistics(req: Request, res: Response,): Promise<void> {
+        try {
+            const { size, page } = req.query as { size: string, page: string };
+            const statistics = await statisticsService.getAllStatistics(size, page);
+            this.success(res, statistics);
+        }
+        catch (err) {
+            this.fail(res, err.toString());
+        }
     }
 }
+
+export default new StatisticsController();

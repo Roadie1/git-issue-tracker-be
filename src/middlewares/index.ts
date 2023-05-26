@@ -1,8 +1,7 @@
-import * as LoggerMiddleware from './logger.middleware';
-import { issuesCache, issueDetailsCache } from './cache.middleware';
+import loggerMiddleware from './logger.middleware';
+import cacheMiddleware from './cache.middleware';
 
 export {
-    LoggerMiddleware,
-    issuesCache,
-    issueDetailsCache
+    loggerMiddleware,
+    cacheMiddleware
 }

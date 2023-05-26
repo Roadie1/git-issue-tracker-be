@@ -1,12 +1,10 @@
 import { Router } from 'express';
-import { IssuesController } from '../controllers';
-import { LoggerMiddleware } from '../middlewares';
+import { issuesController } from '../controllers';
+import { loggerMiddleware } from '../middlewares';
 
 const router = Router();
 
-router.use('/', (req, res, next) => LoggerMiddleware.logRequest(req, res, next, "getIssues"));
-router.get('/', IssuesController.getIssues);
-router.use('/details', (req, res, next) => LoggerMiddleware.logRequest(req, res, next, "getIssueDetails"));
-router.get('/details', IssuesController.getIssueDetails)
+router.get('/', (req, res, next) => loggerMiddleware.logRequest(req, res, next, "getIssues"), (req, res) => issuesController.getIssues(req, res));
+router.get('/details', (req, res, next) => loggerMiddleware.logRequest(req, res, next, "getIssueDetails"), (req, res) => issuesController.getIssueDetails(req, res))
 
 export default router;

@@ -1,7 +1,7 @@
-import * as IssuesService from './issues.service';
-import * as StatisticsService from './statistics.service';
+import issuesService from './issues.service';
+import statisticsService from './statistics.service';
 
 export {
-    IssuesService,
-    StatisticsService
+    issuesService,
+    statisticsService
 }
