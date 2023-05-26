@@ -3,11 +3,12 @@ import { IssueDTO, GithubIssueDTO, DTOtoIssue, Issue } from "../dto";
 import { IssueDetailsQuery, IssueQuery } from '../types';
 import { cacheMiddleware } from '../middlewares';
 import { IssueDetailsDTO, toIssueDetailsDTO } from '../dto';
+import { GithubError } from '../util/errorHandling';
 
 class IssuesService {
     private readonly issuesCache;
     private readonly issueDetailsCache;
-    constructor() { 
+    constructor() {
         this.issuesCache = cacheMiddleware.createCache<Issue[]>(600, 100000);
         this.issueDetailsCache = cacheMiddleware.createCache<IssueDetailsDTO[]>(60, 100000);
     }
@@ -36,7 +37,12 @@ class IssuesService {
                 'X-GitHub-Api-Version': '2022-11-28'
             }
         }
-        return fetch(url, options);
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            const json = await response.json();
+            throw new GithubError(response.status, json.message);
+        }
+        return response;
     }
 
     private async fetchIssues(url: string): Promise<GithubIssueDTO[]> {

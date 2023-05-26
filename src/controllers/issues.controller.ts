@@ -14,7 +14,7 @@ class IssuesController extends BaseController {
             this.success(res, issues);
         }
         catch (err) {
-            this.fail(res, err.toString());
+            this.error(res, err);
         }
     }
     public async getIssueDetails(req: Request<{}, {}, {}, Record<string, any>>, res: Response): Promise<void> {
@@ -23,7 +23,7 @@ class IssuesController extends BaseController {
             this.success(res, issue);
         }
         catch (err) {
-            this.fail(res, err.toString());
+            this.error(res, err);
         }
     }
 }

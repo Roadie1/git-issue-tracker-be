@@ -13,7 +13,7 @@ app.use('/statistics', StatisticsRoutes);
 
 async function main() {
     try {
-        await mongoose.connect(MONGO_URL);
+        await mongoose.connect(MONGO_URL || "");
         app.listen(PORT);
         console.log(`Server is starting at ${PORT}`);
     }
