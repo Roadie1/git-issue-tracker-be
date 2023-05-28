@@ -1,4 +1,5 @@
 import fetch, { Response } from 'node-fetch';
+import { MemoryCache } from 'memory-cache-node';
 import { IssueDTO, GithubIssueDTO, DTOtoIssue, Issue } from "../dto";
 import { IssueDetailsQuery, IssueQuery } from '../types';
 import { cacheMiddleware } from '../middlewares';
@@ -6,11 +7,11 @@ import { IssueDetailsDTO, toIssueDetailsDTO } from '../dto';
 import { GithubError } from '../util/errorHandling';
 
 class IssuesService {
-    private readonly issuesCache;
-    private readonly issueDetailsCache;
+    private readonly issuesCache: MemoryCache<string, Issue[]>;
+    private readonly issueDetailsCache: MemoryCache<string, IssueDetailsDTO>;
     constructor() {
         this.issuesCache = cacheMiddleware.createCache<Issue[]>(600, 100000);
-        this.issueDetailsCache = cacheMiddleware.createCache<IssueDetailsDTO[]>(60, 100000);
+        this.issueDetailsCache = cacheMiddleware.createCache<IssueDetailsDTO>(60, 100000);
     }
 
     private GIT_URL = process.env.GIT_URL;
@@ -39,7 +40,7 @@ class IssuesService {
         }
         const response = await fetch(url, options);
         if (!response.ok) {
-            const json = await response.json();
+            const json = await response.json() as Error;
             throw new GithubError(response.status, json.message);
         }
         return response;
@@ -95,7 +96,7 @@ class IssuesService {
 
         if (!issue) {
             const result = await this.fetchFromGitApi(this.getIssueDetailsUrl(user, repository, number));
-            const resultJson = await result.json();
+            const resultJson = await result.json() as GithubIssueDTO;
             issue = resultJson ? toIssueDetailsDTO(resultJson) : null;
             this.issueDetailsCache.storeExpiringItem(cacheKey, issue, 60);
         }

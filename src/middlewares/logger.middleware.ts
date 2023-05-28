@@ -2,17 +2,15 @@ import { NextFunction, Request, Response } from 'express';
 import { Log } from "../models";
 
 class LoggerMiddleware {
-    constructor() { }
-
     public async logRequest(
-        req: Request<{}, {}, {}, Record<string, any>>,
+        req: Request<object, object, object, unknown>,
         _res: Response,
         next: NextFunction,
         type: string
     ): Promise<void> {
         const searchParams = Object.keys(req.query).map((key) => ({
             parameter: key,
-            value: req.query[key]
+            value: req.query[key] as string
         }));
 
         const newLog = new Log({ clientIp: req.ip, requestType: type, searchParams, requestedAt: new Date() });

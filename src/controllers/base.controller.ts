@@ -2,7 +2,6 @@ import { Response } from "express";
 import { GithubError } from "../util/errorHandling";
 
 export default abstract class BaseController {
-    constructor() { }
 
     public static jsonResponse(res: Response, code: number, message: string) {
         return res.status(code).json({ message })

@@ -13,8 +13,8 @@ class StatisticsController extends BaseController {
             const statistics = await statisticsService.getAllStatistics(size, page);
             this.success(res, statistics);
         }
-        catch (err) {
-            this.fail(res, err.toString());
+        catch (err: unknown) {
+            this.error(res, err as Error);
         }
     }
 }

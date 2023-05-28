@@ -3,6 +3,6 @@ import { statisticsController } from '../controllers';
 
 const router = Router();
 
-router.get('/', (req, res) => statisticsController.getAllStatistics(req, res));
+router.get('/', (req, res) => void statisticsController.getAllStatistics(req, res));
 
 export default router;

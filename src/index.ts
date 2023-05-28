@@ -22,8 +22,10 @@ async function main() {
     }
 }
 
-main();
-process.on("SIGINT", async () => {
+async function disconnect() {
     await mongoose.disconnect();
     process.exit();
-})
+}
+
+void main();
+process.on("SIGINT", () => void disconnect());
