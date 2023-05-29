@@ -25,7 +25,7 @@ class IssuesService {
     }
 
     private getTotalPages(header: string): number {
-        const lastLink = header.split(', ').find((link) => link.includes('rel="last"'));
+        const lastLink = header && header.split(', ').find((link) => link.includes('rel="last"'));
         if(!lastLink) return 0;
         const indexStart = lastLink.indexOf('page=');
         const indexEnd = lastLink.indexOf('&per_page=');
