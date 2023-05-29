@@ -24,10 +24,12 @@ class IssuesService {
         return this.GIT_URL + `/repos/${user}/${repository}/issues/${number}`;
     }
 
-    private getNextPage(header: string): string {
-        const nextLink = header?.split(', ').find((link) => link.includes('rel="next"'));
-        if (!nextLink) return '';
-        return nextLink.slice(1, nextLink.indexOf('>'));
+    private getTotalPages(header: string): number {
+        const lastLink = header.split(', ').find((link) => link.includes('rel="last"'));
+        if(!lastLink) return 0;
+        const indexStart = lastLink.indexOf('page=');
+        const indexEnd = lastLink.indexOf('&per_page=');
+        return Number(lastLink.slice(indexStart + 5, indexEnd));
     }
 
     private async fetchFromGitApi(url: string): Promise<Response> {
@@ -46,22 +48,32 @@ class IssuesService {
         return response;
     }
 
-    private async fetchIssues(url: string): Promise<GithubIssueDTO[]> {
+    private async fetchNextIssues(url: string):  Promise<GithubIssueDTO[]> {
         const result = await this.fetchFromGitApi(url);
-        let issues = await result.json() as GithubIssueDTO[];
-        const nextLink = this.getNextPage(result.headers.get('link'));
-        if (nextLink) {
-            const nextIssues = await this.fetchIssues(nextLink);
-            issues = [...issues, ...nextIssues];
-        }
+        const issues = await result.json() as GithubIssueDTO[];
         return issues;
     }
+
     private async getAllIssues(user: string, repository: string): Promise<Issue[]> {
-        const issues = await this.fetchIssues(this.getIssuesUrl(user, repository, 1, 100));
+        const result = await this.fetchFromGitApi(this.getIssuesUrl(user, repository, 1, 100));
+        const issues = await result.json() as GithubIssueDTO[];
         if (!issues) {
             return [];
         }
-        return issues.filter((issue => !issue.pull_request)).map(DTOtoIssue);
+        const totalPages = this.getTotalPages(result.headers.get('link'));
+        const promises: Promise<GithubIssueDTO[]>[] = [];
+        for (let i = 2; i<= totalPages; i++) {
+            promises.push(this.fetchNextIssues(this.getIssuesUrl(user, repository, i, 100)));
+        }
+        const issueArrays = await Promise.all(promises);
+        const newIssues = issueArrays.reduce((acc, issuesArray) => {
+            acc = [...acc, ...issuesArray];
+            return acc; 
+        }, []);
+        return [...issues, ...newIssues].filter((issue => !issue.pull_request)).map(DTOtoIssue).sort((a, b) => {
+            if(a.createdAt > b.createdAt) return -1;
+            return 1;
+        });
     }
 
 
@@ -75,7 +87,7 @@ class IssuesService {
 
         if (forced === 'true' || !allIssues) {
             allIssues = await this.getAllIssues(user, repository);
-            this.issuesCache.storeExpiringItem(cacheKey, allIssues, 600);
+            this.issuesCache.storeExpiringItem(cacheKey, allIssues, 3600);
         }
         return {
             issues: allIssues.slice((pageNumber - 1) * sizeNumber, pageNumber * sizeNumber),
